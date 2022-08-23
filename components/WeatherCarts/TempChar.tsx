@@ -31,7 +31,7 @@ export const gridGray = '#E1E1E1'
 // tooltip styles
 const tooltipStyles = {
   ...defaultStyles,
-  minWidth: 60,
+  minWidth: 120,
   backgroundColor: 'rgba(0,0,0,0.9)',
   color: 'white',
 }
@@ -94,8 +94,6 @@ export const TempChart = ({
       }),
     [innerHeight]
   )
-
-  console.log('tooltip data', tooltipData)
 
   return (
     <div>
@@ -160,7 +158,8 @@ export const TempChart = ({
                 onMouseMove={(event) => {
                   if (tooltipTimeout) clearTimeout(tooltipTimeout)
                   const eventSvgCoords = localPoint(event)
-                  const left = barX ?? 0 + barWidth / 2
+                  const left = barX ?? 1 + barWidth / 2
+
                   showTooltip({
                     tooltipData: d,
                     tooltipTop: eventSvgCoords?.y,
