@@ -1,4 +1,4 @@
-import data from '../data.json'
+import data from '../data/weather.json'
 
 export const dailyData = data.daily.map((d) => ({
   avg: (d.temp.day - 273.15).toString(),

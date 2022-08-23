@@ -1,7 +1,8 @@
 import type { NextPage } from 'next'
 import { ParentSizeModern } from '@visx/responsive'
 import { Daily } from '../components/BarCharts/Daily'
-import { TempChart } from '../components/WeatherCarts/TempChar'
+import { TempChart } from '../components/BarCharts/TempChar'
+import { PestCounts } from '../components/LineCharts/PestCounts'
 
 const Home: NextPage = () => {
   // For tool tip to work the tempChar implementation needs to be uses. Super stupid
@@ -18,6 +19,8 @@ const Home: NextPage = () => {
           {({ width, height }) => <TempChart width={width} height={height} />}
         </ParentSizeModern>
       </div>
+
+      <PestCounts />
     </div>
   )
 }

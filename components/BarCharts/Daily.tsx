@@ -17,7 +17,7 @@ import {
 } from '@visx/tooltip'
 import { localPoint } from '@visx/event'
 
-import data from '../../data.json'
+import data from '../../data/weather.json'
 
 /**
  * Four steps to data visualizations with VisX

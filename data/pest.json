@@ -1,0 +1,166 @@
+{
+  "farmAPests":{
+    "cicadaCounts": [
+      {
+        "week": "August 22, 2022",
+        "count": 30
+      },
+      {
+        "week": "August 15, 2022",
+        "count": 32
+      },
+      {
+        "week": "August 8, 2022",
+        "count": 31
+      },
+      {
+        "week": "August 1, 2022",
+        "count": 33
+      },
+      {
+        "week": "July 25, 2022",
+        "count": 27
+      },
+      {
+        "week": "July 18, 2022",
+        "count": 25
+      },
+      {
+        "week": "July 11, 2022",
+        "count": 20
+      },
+      {
+        "week": "July 4, 2022",
+        "count": 16
+      },
+      {
+        "week": "June 27, 2022",
+        "count": 18
+      },
+      {
+        "week": "June 20, 2022",
+        "count": 20
+      },
+      {
+        "week": "June 13, 2022",
+        "count": 28
+      },
+      {
+        "week": "June 6, 2022",
+        "count": 23
+      },
+      {
+        "week": "May 30, 2022",
+        "count": 25
+      }
+    ],
+    "wormwevilCounts": [
+      {
+        "week": "August 22, 2022",
+        "count": 25
+      },
+      {
+        "week": "August 15, 2022",
+        "count": 23
+      },
+      {
+        "week": "August 8, 2022",
+        "count": 22
+      },
+      {
+        "week": "August 1, 2022",
+        "count": 24
+      },
+      {
+        "week": "July 25, 2022",
+        "count": 26
+      },
+      {
+        "week": "July 18, 2022",
+        "count": 23
+      },
+      {
+        "week": "July 11, 2022",
+        "count": 22
+      },
+      {
+        "week": "July 4, 2022",
+        "count": 20
+      },
+      {
+        "week": "June 27, 2022",
+        "count": 21
+      },
+      {
+        "week": "June 20, 2022",
+        "count": 24
+      },
+      {
+        "week": "June 13, 2022",
+        "count": 22
+      },
+      {
+        "week": "June 6, 2022",
+        "count": 25
+      },
+      {
+        "week": "May 30, 2022",
+        "count": 23
+      }
+    ],
+    "ladybugCounts": [
+        {
+          "week": "August 22, 2022",
+          "count": 10
+        },
+        {
+          "week": "August 15, 2022",
+          "count": 12
+        },
+        {
+          "week": "August 8, 2022",
+          "count": 15
+        },
+        {
+          "week": "August 1, 2022",
+          "count": 13
+        },
+        {
+          "week": "July 25, 2022",
+          "count": 12
+        },
+        {
+          "week": "July 18, 2022",
+          "count": 11
+        },
+        {
+          "week": "July 11, 2022",
+          "count": 13
+        },
+        {
+          "week": "July 4, 2022",
+          "count": 9
+        },
+        {
+          "week": "June 27, 2022",
+          "count": 10
+        },
+        {
+          "week": "June 20, 2022",
+          "count": 13
+        },
+        {
+          "week": "June 13, 2022",
+          "count": 10
+        },
+        {
+          "week": "June 6, 2022",
+          "count": 11
+        },
+        {
+          "week": "May 30, 2022",
+          "count": 9
+        }
+      ]
+  }
+}
