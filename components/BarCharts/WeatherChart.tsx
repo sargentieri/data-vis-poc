@@ -6,7 +6,6 @@ import { AxisBottom, AxisLeft } from '@visx/axis'
 import { Text } from '@visx/text'
 
 //reponsive imports
-import { ParentSize } from '@visx/responsive'
 import { ScaleSVG } from '@visx/responsive'
 
 // grid imports
