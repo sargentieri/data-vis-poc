@@ -4,6 +4,7 @@ import { BarGroup } from '@visx/shape'
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale'
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { Text } from '@visx/text'
+import { ScaleSVG } from '@visx/responsive'
 
 // grid imports
 import { GridRows } from '@visx/grid'
@@ -115,16 +116,9 @@ export const Daily = ({
         8-day forcast with min, max, and average temperature of Yushu City,
         China
       </h3>
-      <svg width={width} height={height}>
+      <ScaleSVG width={width} height={height}>
         {/* background Svg element */}
-        <rect
-          x={0}
-          y={0}
-          width={width}
-          height={height}
-          fill={background}
-          rx={14}
-        />
+        <rect x={0} y={0} width={width} height={height} fill={background} />
         {/* ================================ */}
         <Group top={margin.top} left={margin.left}>
           {/* make own grid component */}
@@ -211,7 +205,7 @@ export const Daily = ({
             textAnchor: 'middle',
           })}
         />
-      </svg>
+      </ScaleSVG>
     </>
   )
 }

@@ -2,7 +2,6 @@ import * as R from 'react'
 // graph basics
 import { Group } from '@visx/group'
 import { scaleBand, scaleLinear } from '@visx/scale'
-import { ScaleSVG, ParentSize, withParentSize } from '@visx/responsive'
 import { Bar } from '@visx/shape'
 import { Text } from '@visx/text'
 // grid and axis defs
@@ -37,7 +36,7 @@ const tooltipStyles = {
   color: 'white',
 }
 
-export const TemperatureChart = ({
+export const TempChart = ({
   width = 700,
   height = 500,
   events = false,
@@ -54,7 +53,7 @@ export const TemperatureChart = ({
     tooltipData,
     hideTooltip,
     showTooltip,
-  } = useTooltip()
+  } = useTooltip<any>()
 
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     // TooltipInPortal is rendered in a separate child of <body /> and positioned
@@ -96,20 +95,11 @@ export const TemperatureChart = ({
     [innerHeight]
   )
 
-  // console.log('tooltip state::::', {
-  //   tooltipOpen,
-  //   tooltipLeft,
-  //   tooltipTop,
-  //   tooltipData,
-  //   hideTooltip,
-  //   showTooltip,
-  // })
-
-  console.log('width & height', { width, height })
+  console.log('tooltip data', tooltipData)
 
   return (
     <div>
-      <ScaleSVG width={width} height={height} innerRef={containerRef}>
+      <svg width={width} height={height} ref={containerRef}>
         <rect width={width} height={height} fill={background} />
         <Group top={margin.top} left={margin.left}>
           <GridRows
@@ -149,13 +139,6 @@ export const TemperatureChart = ({
             const barX = dateScale(date)
             const barY = innerHeight - barHeight
 
-            // console.log('bar dimensions', {
-            //   barX,
-            //   barWidth,
-            //   barHeight,
-            //   barY,
-            // })
-
             return (
               <Bar
                 key={`bar-${date}-${i}`}
@@ -164,7 +147,7 @@ export const TemperatureChart = ({
                 width={barWidth}
                 height={barHeight}
                 fill={blue}
-                rx={20}
+                rx={width / 30}
                 onClick={() => {
                   if (events)
                     alert(`clicked: ${JSON.stringify(Object.values(d))}`)
@@ -175,20 +158,13 @@ export const TemperatureChart = ({
                   }, 300)
                 }}
                 onMouseMove={(event) => {
-                  // console.log('event', event)
                   if (tooltipTimeout) clearTimeout(tooltipTimeout)
-                  // TooltipInPortal expects coordinates to be relative to containerRef
-                  // localPoint returns coordinates relative to the nearest SVG, which
-                  // is what containerRef is set to in this example.
                   const eventSvgCoords = localPoint(event)
-
-                  const left = barX ?? 1 + barWidth * i
-
-                  // console.log('svgChords', eventSvgCoords)
+                  const left = barX ?? 0 + barWidth / 2
                   showTooltip({
                     tooltipData: d,
                     tooltipTop: eventSvgCoords?.y,
-                    tooltipLeft: eventSvgCoords?.x,
+                    tooltipLeft: left,
                   })
                 }}
               />
@@ -209,7 +185,7 @@ export const TemperatureChart = ({
             textAnchor: 'middle',
           })}
         />
-      </ScaleSVG>
+      </svg>
       {tooltipOpen && tooltipData && (
         <TooltipInPortal
           top={tooltipTop}
@@ -217,13 +193,12 @@ export const TemperatureChart = ({
           style={tooltipStyles}
         >
           <div>
-            <strong>Toolio</strong>
+            <strong>Daily Temp</strong>
           </div>
-
-          {/* <div>{tooltipData?.bar?.data[tooltipData.key]}</div>
+          <div>{tooltipData.dt}</div>
           <div>
-            <small>{formatDate(getDate(tooltipData.bar.data))}</small>
-          </div> */}
+            <small>{Math.round(tooltipData.avg).toFixed(2)}°C</small>
+          </div>
         </TooltipInPortal>
       )}
     </div>

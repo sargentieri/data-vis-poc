@@ -7,3 +7,5 @@ export const dailyData = data.daily.map((d) => ({
   windSpeed: d.wind_speed,
   rainfall: d.rain ?? 0,
 }))
+
+
