@@ -2,22 +2,20 @@ import * as R from 'react'
 import { Group } from '@visx/group'
 import { BarGroup } from '@visx/shape'
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale'
+// Axis imports
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { Text } from '@visx/text'
-import { ScaleSVG } from '@visx/responsive'
-
 // grid imports
 import { GridRows } from '@visx/grid'
 
 // tooltip imports
-import {
-  useTooltip,
-  useTooltipInPortal,
-  TooltipWithBounds,
-} from '@visx/tooltip'
+import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip'
 import { localPoint } from '@visx/event'
 
-import data from '../../data/weather.json'
+//utils
+import { numTicksRows } from '../../utils/numTickRows'
+import { formatDate } from '../../utils/formatDate'
+import { tempRangeData } from '../../utils/data'
 
 /**
  * Four steps to data visualizations with VisX
@@ -27,15 +25,6 @@ import data from '../../data/weather.json'
  * 4. return visualization
  */
 
-// TODO:
-// extra steps for responsive designs
-// Refactor to handle data
-// Pull steps out of fn definition
-// Build tooltip
-// Background GridCol colors
-
-// ======================================================================
-// utils -> derived from theme obj (uses current values)
 const blue = '#4071A9'
 export const green = '#40AC98'
 const purple = '#8970CF'
@@ -43,45 +32,53 @@ export const background = '#FFFFFF'
 export const gray = '#CDCDCD'
 export const gridGray = '#E1E1E1'
 
-// utils
-const formatDate = (date: string) => {
-  let displayDate = date.split('/')
-  return `${displayDate[0]}/ ${displayDate[1]}`
+const tooltipStyles = {
+  ...defaultStyles,
+  minWidth: 120,
+  backgroundColor: 'rgba(0,0,0,0.9)',
+  color: 'white',
 }
 
-const numTicksRows = (height: number, margin: number) => {
-  return height / margin
-}
-// ======================================================================
-
-export const Daily = ({
+export const TempRangeChart = ({
   events = false,
-  daily = dailyData,
+  width,
+  height,
 }: {
-  events: boolean
-  daily?: any[]
+  events?: boolean
+  width: number
+  height: number
 }) => {
-  /**
-   *  ALL OF THIS NEEDS TO BE MOVED OUTSIDE OF COMPONENT FN DEFINITION
-   */
+  const {
+    tooltipOpen,
+    tooltipLeft,
+    tooltipTop,
+    tooltipData,
+    hideTooltip,
+    showTooltip,
+  } = useTooltip<any>()
+
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    // TooltipInPortal is rendered in a separate child of <body /> and positioned
+    // with page coordinates which should be updated on scroll. consider using
+    // Tooltip or TooltipWithBounds if you don't need to render inside a Portal
+    scroll: true,
+  })
+
+  let tooltipTimeout: number
   // 1. Chart Dimensions
-  const width = 800 // width of parent container
-  const height = 500 // height of parent container
   const margin = { top: 60, right: 40, bottom: 60, left: 40 } // values used to derive inner width/height from parent
   // the above values should be props
   const innerWidth = width - margin.left - margin.right // width of axis
   const innerHeight = height - margin.top - margin.bottom // height of axis
   // ---------------------------------------------------------------------
-
   // 2. Accessor fns
-  const keys = Object.keys(daily[0]).filter((d) => d !== 'dt') // used to derive min, max, avg
+  const keys = Object.keys(tempRangeData[0]).filter((d) => d !== 'dt') // used to derive min, max, avg
   const accessDateTime = (d: any) => d.dt // will map to x-axis value
   // ---------------------------------------------------------------------
   // 3. Scales
-
   // set group range
   const dateScale = scaleBand<string>({
-    domain: daily.map(accessDateTime),
+    domain: tempRangeData.map(accessDateTime),
     padding: 0.2,
   }).rangeRound([0, innerWidth])
 
@@ -96,8 +93,10 @@ export const Daily = ({
     domain: [
       0,
       Math.max(
-        //@ts-ignore
-        ...daily.map((d) => Math.max(...keys.map((key) => Number(d[key]))))
+        ...tempRangeData.map((d) =>
+          //@ts-ignore
+          Math.max(...keys.map((key) => Number(d[key])))
+        )
       ),
     ],
   }).range([innerHeight, 0])
@@ -108,15 +107,12 @@ export const Daily = ({
     range: [green, blue, purple],
   })
   // ---------------------------------------------------------------------
-  // ======================================================================
   // 4. Return visualization
+
+  console.log('tooltip data', tooltipData)
   return (
-    <>
-      <h3>
-        8-day forcast with min, max, and average temperature of Yushu City,
-        China
-      </h3>
-      <ScaleSVG width={width} height={height}>
+    <div>
+      <svg width={width} height={height} ref={containerRef}>
         {/* background Svg element */}
         <rect x={0} y={0} width={width} height={height} fill={background} />
         {/* ================================ */}
@@ -152,7 +148,7 @@ export const Daily = ({
             Temperature (°C)
           </Text>
           <BarGroup
-            data={daily}
+            data={tempRangeData}
             keys={keys}
             height={innerHeight}
             x0={accessDateTime}
@@ -162,33 +158,49 @@ export const Daily = ({
             color={colorScale}
           >
             {(barGroups) =>
-              barGroups.map((barGroup) => (
-                <Group
-                  key={`bar-group-${barGroup.index}-${barGroup.x0}`}
-                  left={barGroup.x0}
-                >
-                  {barGroup.bars.map((bar) => {
-                    // console.log('bar', bar)
-                    return (
-                      <rect
-                        key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
-                        x={bar.x}
-                        y={bar.y}
-                        width={bar.width}
-                        height={bar.height}
-                        fill={bar.color}
-                        rx={5}
-                        ry={5}
-                        onClick={() => {
-                          if (!events) return
-                          const { key, value } = bar
-                          alert(JSON.stringify({ key, value }))
-                        }}
-                      />
-                    )
-                  })}
-                </Group>
-              ))
+              barGroups.map((barGroup) => {
+                return (
+                  <Group
+                    key={`bar-group-${barGroup.index}-${barGroup.x0}`}
+                    left={barGroup.x0}
+                  >
+                    {barGroup.bars.map((bar) => {
+                      return (
+                        <rect
+                          key={`bar-group-bar-${barGroup.index}-${bar.index}-${bar.value}-${bar.key}`}
+                          x={bar.x}
+                          y={bar.y}
+                          width={bar.width}
+                          height={bar.height}
+                          fill={bar.color}
+                          rx={width / 70}
+                          onClick={() => {
+                            if (!events) return
+                            const { key, value } = bar
+                            alert(JSON.stringify({ key, value }))
+                          }}
+                          onMouseLeave={() => {
+                            tooltipTimeout = window.setTimeout(() => {
+                              hideTooltip()
+                            }, 300)
+                          }}
+                          onMouseMove={(event) => {
+                            if (tooltipTimeout) clearTimeout(tooltipTimeout)
+                            const eventSvgCoords = localPoint(event)
+                            const left = barGroup.x0 + bar.width / 2
+
+                            showTooltip({
+                              tooltipData: bar,
+                              tooltipTop: eventSvgCoords?.y,
+                              tooltipLeft: left,
+                            })
+                          }}
+                        />
+                      )
+                    })}
+                  </Group>
+                )
+              })
             }
           </BarGroup>
         </Group>
@@ -205,14 +217,24 @@ export const Daily = ({
             textAnchor: 'middle',
           })}
         />
-      </ScaleSVG>
-    </>
+      </svg>
+      {tooltipOpen && tooltipData && (
+        <TooltipInPortal
+          top={tooltipTop}
+          left={tooltipLeft}
+          style={tooltipStyles}
+        >
+          <div>
+            <strong>Daily Temp Range</strong>
+          </div>
+          {/* DATE not accessible, not sure exactly how to fix */}
+          <div>
+            <small>
+              {tooltipData.key}: {Math.round(tooltipData.value).toFixed(2)}°C
+            </small>
+          </div>
+        </TooltipInPortal>
+      )}
+    </div>
   )
 }
-
-const dailyData = data.daily.map((d) => ({
-  min: (d.temp.min - 273.15).toString(),
-  avg: (d.temp.day - 273.15).toString(),
-  max: (d.temp.max - 273.15).toString(),
-  dt: new Date(d.dt * 1000).toLocaleString('en-US').split(',')[0],
-}))

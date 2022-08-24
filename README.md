@@ -5,7 +5,7 @@ Visx POCs
 - responsive charts
   - Bar chart (single)
   - Bar chart (multi)
-  - Line chart (multi)\*
+  - Line chart (multi)*
 - tool tips
 
 # TODO
