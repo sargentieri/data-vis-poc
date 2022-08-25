@@ -2,10 +2,13 @@ import * as R from 'react'
 import { LinePath } from '@visx/shape'
 import { Group } from '@visx/group'
 import { MarkerCircle, Marker } from '@visx/marker'
-import { scaleBand, scaleLinear } from '@visx/scale'
+import { scaleBand, scaleLinear, scaleTime } from '@visx/scale'
 // axis
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { GridRows } from '@visx/grid'
+// tooltip
+import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip'
+import { localPoint } from '@visx/event'
 //utils
 import { numTicksRows } from '../../utils/numTickRows'
 import { formatDate } from '../../utils/formatDate'
@@ -30,6 +33,13 @@ const markers = [
   'url(#marker-arrow)',
 ]
 
+const tooltipStyles = {
+  ...defaultStyles,
+  minWidth: 120,
+  backgroundColor: 'rgba(0,0,0,0.9)',
+  color: 'white',
+}
+
 const pestDataByFarmA = pestDataByFarm[0]
 
 type TimeSeriesData = {
@@ -53,6 +63,21 @@ export const PestCountsChart = ({
   height: number
 }) => {
   // 1. chart dimensions
+  const {
+    tooltipOpen,
+    tooltipLeft,
+    tooltipTop,
+    tooltipData,
+    hideTooltip,
+    showTooltip,
+  } = useTooltip<any>()
+
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    scroll: true,
+  })
+
+  let tooltipTimeout: number
+
   const margin = { top: 60, right: 40, bottom: 60, left: 40 }
   const innerWidth = width - margin.left - margin.right
   const innerHeight = height - margin.top - margin.bottom
@@ -73,7 +98,6 @@ export const PestCountsChart = ({
     [innerWidth]
   )
 
-  // vertical, y scale
   const countScale = R.useMemo(
     () =>
       scaleLinear<number>({
@@ -84,12 +108,12 @@ export const PestCountsChart = ({
     [innerHeight]
   )
 
-  // console.log('data', data)
+  console.log('tooltip', tooltipData)
 
   // 4. return visualization
   return (
     <div>
-      <svg width={width} height={height}>
+      <svg width={width} height={height} ref={containerRef}>
         <rect width={width} height={height} fill={background} />
         <MarkerSquare id='marker-square' fill={green} size={2} refX={2} />
         <MarkerCircle id='marker-circle' fill={blue} size={2} refX={2} />
@@ -119,10 +143,10 @@ export const PestCountsChart = ({
           {data?.pests?.map((pest: any, i: number) => {
             const data = pest.pestTimeSeries
 
-            console.log('looped data', data)
             return (
               <Line
                 key={`${data.name}-${i}`}
+                itr={i}
                 marker={markers[i]}
                 stroke={colors[i]}
                 strokeWidth={3}
@@ -131,6 +155,10 @@ export const PestCountsChart = ({
                 countScale={countScale}
                 getDate={getDate}
                 getCount={getCount}
+                tooltipTimeout={tooltipTimeout}
+                hideTooltip={hideTooltip}
+                showTooltip={showTooltip}
+                name={pest.name}
               />
             )
           })}
@@ -149,6 +177,23 @@ export const PestCountsChart = ({
           })}
         />
       </svg>
+      {tooltipOpen && tooltipData && (
+        <TooltipInPortal
+          top={tooltipTop}
+          left={tooltipLeft}
+          style={tooltipStyles}
+        >
+          <div>
+            <strong>{tooltipData.name} Counts</strong>
+          </div>
+          <div>
+            <small>{tooltipData.date}</small>
+          </div>
+          <div>
+            <small>Count: {getCount(tooltipData)}</small>
+          </div>
+        </TooltipInPortal>
+      )}
     </div>
   )
 }
@@ -169,6 +214,11 @@ interface LineProps {
   stroke?: string
   strokeWidth?: number
   marker: string
+  tooltipTimeout: number
+  hideTooltip: () => void
+  showTooltip: (p: any) => void
+  itr: number
+  name: string
 }
 
 const Line = ({
@@ -179,10 +229,16 @@ const Line = ({
   getCount,
   strokeDashArray,
   marker,
+  tooltipTimeout,
+  hideTooltip,
+  showTooltip,
+  itr,
+  name,
   ...rest
 }: LineProps) => {
   const futureData = data.filter((d) => d.projection)
   const pastData = data.filter((d) => !d.projection)
+
   return (
     <>
       {/* passed */}
@@ -194,6 +250,24 @@ const Line = ({
         markerMid={marker}
         markerStart={marker}
         markerEnd={marker}
+        onMouseLeave={() => {
+          tooltipTimeout = window.setTimeout(() => {
+            hideTooltip()
+          }, 300)
+        }}
+        onMouseMove={(event) => {
+          if (tooltipTimeout) clearTimeout(tooltipTimeout)
+          const eventSvgCoords = localPoint(event)
+          // const lineX = dateScale(pastData)
+          // const lineWidth = dateScale.bandwidth()
+          // const left = lineX ?? 1 + lineWidth / 2
+
+          showTooltip({
+            tooltipData: { ...pastData[itr], name },
+            tooltipTop: eventSvgCoords?.y,
+            tooltipLeft: eventSvgCoords?.x,
+          })
+        }}
       />
       {/* future */}
       <LinePath
@@ -204,6 +278,24 @@ const Line = ({
         strokeDasharray={5}
         markerMid={marker}
         markerStart={marker}
+        onMouseLeave={() => {
+          tooltipTimeout = window.setTimeout(() => {
+            hideTooltip()
+          }, 300)
+        }}
+        onMouseMove={(event) => {
+          if (tooltipTimeout) clearTimeout(tooltipTimeout)
+          const eventSvgCoords = localPoint(event)
+          // const lineX = dateScale(futureData)
+          // const lineWidth = dateScale.bandwidth()
+          // const left = lineX ?? 1 + lineWidth / 2
+
+          showTooltip({
+            tooltipData: { ...pastData[itr], name },
+            tooltipTop: eventSvgCoords?.y,
+            tooltipLeft: eventSvgCoords?.x,
+          })
+        }}
       />
     </>
   )
