@@ -108,8 +108,6 @@ export const PestCountsChart = ({
     [innerHeight]
   )
 
-  console.log('tooltip', tooltipData)
-
   // 4. return visualization
   return (
     <div>
