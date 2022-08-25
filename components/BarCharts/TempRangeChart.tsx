@@ -78,18 +78,21 @@ export const TempRangeChart = ({
   // 3. Scales
   // set group range
   const dateScale = scaleBand<string>({
+    range: [0, innerWidth],
     domain: tempRangeData.map(accessDateTime),
     padding: 0.2,
-  }).rangeRound([0, innerWidth])
+  })
 
   // set bar range
   const rangeScale = scaleBand<string>({
+    range: [0, dateScale.bandwidth()],
     domain: keys,
     padding: 0.1,
-  }).rangeRound([0, dateScale.bandwidth()])
+  })
 
   // sets height of each bar
   const tempScale = scaleLinear<number>({
+    range: [innerHeight, 0],
     domain: [
       0,
       Math.max(
@@ -99,17 +102,14 @@ export const TempRangeChart = ({
         )
       ),
     ],
-  }).range([innerHeight, 0])
+  })
 
   // applys color to min, max, avg bar
   const colorScale = scaleOrdinal<string, string>({
     domain: keys,
     range: [green, blue, purple],
   })
-  // ---------------------------------------------------------------------
   // 4. Return visualization
-
-  console.log('tooltip data', tooltipData)
   return (
     <div>
       <svg width={width} height={height} ref={containerRef}>

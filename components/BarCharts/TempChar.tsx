@@ -56,12 +56,8 @@ export const TempChart = ({
   } = useTooltip<any>()
 
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
-    // TooltipInPortal is rendered in a separate child of <body /> and positioned
-    // with page coordinates which should be updated on scroll. consider using
-    // Tooltip or TooltipWithBounds if you don't need to render inside a Portal
     scroll: true,
   })
-
   let tooltipTimeout: number
 
   // 1. Chart Dimensions
@@ -89,8 +85,8 @@ export const TempChart = ({
     () =>
       scaleLinear<number>({
         range: [innerHeight, 0],
-        round: true,
         domain: [0, Math.max(...dailyData.map(getTemp))],
+        round: true,
       }),
     [innerHeight]
   )
