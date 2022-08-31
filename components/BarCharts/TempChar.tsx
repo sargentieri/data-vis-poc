@@ -11,9 +11,7 @@ import { AxisBottom, AxisLeft } from '@visx/axis'
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip'
 import { localPoint } from '@visx/event'
 // utils
-import { dailyData } from '../../utils/data'
-import { numTicksRows } from '../../utils/numTickRows'
-import { formatDate } from '../../utils/formatDate'
+import { formatDay } from '../../utils/formatDate'
 
 /**
  * Four steps to data visualizations with VisX
@@ -23,6 +21,18 @@ import { formatDate } from '../../utils/formatDate'
  * 4. return visualization
  */
 
+/**
+ * Seperate Axises into own File
+ * Seperate Grid lines into Own File
+ * Make Rects their own file
+ * embellish styles
+ * make tooltip more generic and in own file
+ */
+
+/**
+ * when I console.log(data), will re console.log on scroll
+ *
+ */
 // colors
 const blue = '#7BBCE0'
 export const background = '#FFFFFF'
@@ -37,13 +47,17 @@ const tooltipStyles = {
 }
 
 export const TempChart = ({
+  data,
   width = 700,
-  height = 500,
+  height = 600,
   events = false,
+  tooltip = false
 }: {
+  data: any
   width?: number
   height?: number
   events?: boolean
+  tooltip?: boolean
 }) => {
   // Tooltip
   const {
@@ -66,8 +80,8 @@ export const TempChart = ({
   const innerHeight = height - margin.top - margin.bottom // height of chart
 
   // 2. Accessor fns
-  const getTemp = (d: any) => d.avg
-  const getDate = (d: any) => d.dt
+  const getY = (d: any) => d[data.name]
+  const getX = (d: any) => d.dt
 
   // 3. Scales
   const dateScale = R.useMemo(
@@ -75,8 +89,8 @@ export const TempChart = ({
       scaleBand<string>({
         range: [0, innerWidth],
         round: true,
-        domain: dailyData.map(getDate),
-        padding: 0.4,
+        domain: data[data.name].map(getX),
+        padding: 0.65,
       }),
     [innerWidth]
   )
@@ -85,11 +99,41 @@ export const TempChart = ({
     () =>
       scaleLinear<number>({
         range: [innerHeight, 0],
-        domain: [0, Math.max(...dailyData.map(getTemp))],
+        domain: [0, Math.max(...data[data.name].map(getY))],
         round: true,
       }),
     [innerHeight]
   )
+
+  const monthDisplay = (data: any) => {
+    let formattedDates: string[] = []
+    let months = ['Aug', 'Sep', 'Sep', 'Sep', 'Sep', 'Oct', 'Oct', 'Oct'] // for testing purposes only
+    // let months: string[] = data.map((d: any) => formatMonth(d.dt))
+
+    months.map((month: string, i: number) => {
+      month === months[i - 1]
+        ? formattedDates.push('')
+        : formattedDates.push(month)
+    })
+
+    return formattedDates
+  }
+
+  const mapTitle = {
+    avg: 'Temperature (°C)',
+    humidity: 'Humidity (%)',
+    rainfall: 'Rainfall (cm)',
+    windSpeed: 'Wind Speed (km/hr)',
+  }
+
+  const mapSymbol = {
+    avg: '(°C)',
+    humidity: '(%)',
+    rainfall: '(cm)',
+    windSpeed: '(km/hr)',
+  }
+
+  const lowerAxisLabels = monthDisplay(data[data.name])
 
   return (
     <div>
@@ -101,7 +145,7 @@ export const TempChart = ({
             width={innerWidth}
             height={innerHeight}
             stroke={gridGray}
-            numTicks={numTicksRows(innerHeight, margin.right)}
+            numTicks={4}
             strokeDasharray='2,5'
             fillOpacity={0.1}
             fill='red'
@@ -110,6 +154,9 @@ export const TempChart = ({
             scale={tempScale}
             tickStroke={gray}
             stroke={gray}
+            numTicks={4}
+            hideAxisLine
+            hideTicks
             tickLabelProps={() => ({
               fill: gray,
               fontSize: 11,
@@ -117,17 +164,22 @@ export const TempChart = ({
             })}
           />
           <Text
-            x='-5'
-            y='-15'
-            fontSize={11}
-            fill={gray}
+            x='-15'
+            y='-20'
+            fontSize={12}
+            lineHeight={21.86}
+            fill={'black'}
             style={{ textDecorationColor: gray }}
           >
-            Temperature (°C)
+            {
+              mapTitle[
+                data?.name as 'avg' | 'rainfall' | 'windSpeed' | 'humidity'
+              ]
+            }
           </Text>
-          {dailyData.map((d, i) => {
-            const temp = getTemp(d)
-            const date = getDate(d)
+          {data[data.name].map((d: any, i: any) => {
+            const temp = getY(d)
+            const date = getX(d)
             const barWidth = dateScale.bandwidth()
             const barHeight = innerHeight - (tempScale(temp) ?? 0)
             const barX = dateScale(date)
@@ -141,17 +193,19 @@ export const TempChart = ({
                 width={barWidth}
                 height={barHeight}
                 fill={blue}
-                rx={width / 30}
+                rx={width / 75}
                 onClick={() => {
                   if (events)
                     alert(`clicked: ${JSON.stringify(Object.values(d))}`)
                 }}
                 onMouseLeave={() => {
+                  if(!tooltip) return
                   tooltipTimeout = window.setTimeout(() => {
                     hideTooltip()
                   }, 300)
                 }}
                 onMouseMove={(event) => {
+                  if(!tooltip) return
                   if (tooltipTimeout) clearTimeout(tooltipTimeout)
                   const eventSvgCoords = localPoint(event)
                   const left = barX ?? 1 + barWidth / 2
@@ -169,17 +223,34 @@ export const TempChart = ({
         <AxisBottom
           top={innerHeight + margin.top}
           scale={dateScale}
-          tickFormat={formatDate}
+          tickFormat={formatDay}
           stroke={gray}
           tickStroke={gray}
           left={margin.left}
-          label={'Date'}
           tickLabelProps={() => ({
             fill: gray,
             fontSize: 11,
             textAnchor: 'middle',
           })}
         />
+        <g transform='translate(33, 172)'>
+          {lowerAxisLabels?.map((m, i) => {
+            const monthsArr = data[data?.name]
+            const month = monthsArr[i]
+            return (
+              <svg
+                key={`${m}-${i}`}
+                fontSize={11}
+                overflow='visible'
+                fill={gray}
+              >
+                <text y={5} x={dateScale(month && month?.dt)}>
+                  {m}
+                </text>
+              </svg>
+            )
+          })}
+        </g>
       </svg>
       {tooltipOpen && tooltipData && (
         <TooltipInPortal
@@ -188,11 +259,35 @@ export const TempChart = ({
           style={tooltipStyles}
         >
           <div>
-            <strong>Daily Temp</strong>
+            <strong>
+              {
+                mapTitle[
+                  data?.name as 'avg' | 'rainfall' | 'windSpeed' | 'humidity'
+                ]
+              }
+            </strong>
           </div>
           <div>{tooltipData.dt}</div>
           <div>
-            <small>{Math.round(tooltipData.avg).toFixed(2)}°C</small>
+            {data.name === 'avg' ? (
+              <small>
+                {Math.round(tooltipData[data.name]).toFixed(2)}{' '}
+                {
+                  mapSymbol[
+                    data?.name as 'avg' | 'rainfall' | 'windSpeed' | 'humidity'
+                  ]
+                }
+              </small>
+            ) : (
+              <small>
+                {tooltipData[data.name]}{' '}
+                {
+                  mapSymbol[
+                    data?.name as 'avg' | 'rainfall' | 'windSpeed' | 'humidity'
+                  ]
+                }
+              </small>
+            )}
           </div>
         </TooltipInPortal>
       )}
