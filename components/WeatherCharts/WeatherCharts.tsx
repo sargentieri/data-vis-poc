@@ -12,8 +12,8 @@ export const WeatherCharts = ({ data = dailyData }) => {
   const dataGrouped = () => {
     let groupedData: any[] = []
     keys.map((key) => {
-      if ((key as string) !== 'dt') console.log('key', key)
-
+      if ((key as string) !== 'dt') return
+      
       let arr = Array.from(
         group(data, (d) => d.dt),
         ([ky, val]) => ({
