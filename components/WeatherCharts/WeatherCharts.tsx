@@ -30,12 +30,10 @@ export const WeatherCharts = ({ data = dailyData }) => {
     <div
       style={{
         background: 'white',
-        display: 'grid',
-        gridTemplateColumns: '1fr',
-        width: '292px',
-        height: '1059px',
-        gridTemplateRows: '50px repeat(5, minmax(100px, 1fr))',
-        gap: '.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '1250px',
+        maxWidth: '350px',
       }}
     >
       <div
@@ -63,7 +61,7 @@ export const WeatherCharts = ({ data = dailyData }) => {
       </div>
       {dataArrays.map((arr) => {
         return (
-          <div key={arr.name}>
+          <div style={{ width: '100%', height: '250px' }} key={arr.name}>
             <ParentSizeModern debounceTime={10}>
               {({ width, height }) => {
                 return (

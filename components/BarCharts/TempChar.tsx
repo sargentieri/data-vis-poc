@@ -51,7 +51,7 @@ export const TempChart = ({
   width = 700,
   height = 600,
   events = false,
-  tooltip = false
+  tooltip = false,
 }: {
   data: any
   width?: number
@@ -75,7 +75,7 @@ export const TempChart = ({
   let tooltipTimeout: number
 
   // 1. Chart Dimensions
-  const margin = { top: 60, right: 40, bottom: 60, left: 40 } // offset for children
+  const margin = { top: 40, right: 25, bottom: 40, left: 25 } // offset for children
   const innerWidth = width - margin.left - margin.right // width of chart
   const innerHeight = height - margin.top - margin.bottom // height of chart
 
@@ -199,13 +199,13 @@ export const TempChart = ({
                     alert(`clicked: ${JSON.stringify(Object.values(d))}`)
                 }}
                 onMouseLeave={() => {
-                  if(!tooltip) return
+                  if (!tooltip) return
                   tooltipTimeout = window.setTimeout(() => {
                     hideTooltip()
                   }, 300)
                 }}
                 onMouseMove={(event) => {
-                  if(!tooltip) return
+                  if (!tooltip) return
                   if (tooltipTimeout) clearTimeout(tooltipTimeout)
                   const eventSvgCoords = localPoint(event)
                   const left = barX ?? 1 + barWidth / 2
@@ -233,24 +233,26 @@ export const TempChart = ({
             textAnchor: 'middle',
           })}
         />
-        <g transform='translate(33, 172)'>
+        <Group
+          top={innerHeight + margin.top + margin.bottom - 5}
+          left={margin.left - 5}
+        >
           {lowerAxisLabels?.map((m, i) => {
             const monthsArr = data[data?.name]
             const month = monthsArr[i]
             return (
-              <svg
+              <Text
                 key={`${m}-${i}`}
                 fontSize={11}
                 overflow='visible'
                 fill={gray}
+                x={dateScale(month && month?.dt)}
               >
-                <text y={5} x={dateScale(month && month?.dt)}>
-                  {m}
-                </text>
-              </svg>
+                {m}
+              </Text>
             )
           })}
-        </g>
+        </Group>
       </svg>
       {tooltipOpen && tooltipData && (
         <TooltipInPortal
