@@ -2,31 +2,33 @@ import React from 'react'
 import { ParentSizeModern } from '@visx/responsive'
 import { dailyData } from '../../utils/data'
 import { TempChart } from '../BarCharts/TempChar'
+import { group } from 'd3-array'
 
 export const WeatherCharts = ({ data = dailyData }) => {
   const [show, setShow] = React.useState(false)
 
-  const makeArrays = (data: any) => {
-    let modifiedData = []
-    for (const key in data[0]) {
-      let newArray = {
+  const keys: string[] = Object.keys(data[0])
+
+  const dataGrouped = () => {
+    let groupedData: any[] = []
+    keys.map((key) => {
+      if ((key as string) !== 'dt') console.log('key', key)
+
+      let arr = Array.from(
+        group(data, (d) => d.dt),
+        ([ky, val]) => ({
+          dt: ky,
+          [key]: val[0][key as 'avg' | 'rainfall' | 'windSpeed' | 'humidity'],
+        })
+      )
+      const newDataObj = {
         name: key,
-        data: data.map((d: any) => {
-          if (key === 'dt') return
-          return {
-            dt: d.dt,
-            [key]: d[key],
-          }
-        }),
+        data: arr,
       }
-      if (!newArray.data.includes(undefined)) modifiedData.push(newArray)
-    }
-    return modifiedData
+      if (key !== 'dt') groupedData.push(newDataObj)
+    })
+    return groupedData
   }
-
-  const dataArrays = makeArrays(data)
-
-  console.log('makedata', dataArrays)
 
   return show ? (
     <div
@@ -61,7 +63,7 @@ export const WeatherCharts = ({ data = dailyData }) => {
           X
         </button>
       </div>
-      {dataArrays.map((arr, i) => {
+      {dataGrouped().map((arr, i) => {
         return (
           <>
             <div style={{ width: '100%', height: '250px' }} key={arr.name + i}>

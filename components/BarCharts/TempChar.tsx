@@ -96,8 +96,6 @@ export const TempChart = ({
     [innerHeight]
   )
 
-  console.log('data', data)
-
   return (
     <div>
       <svg width={width} height={height} ref={containerRef}>
