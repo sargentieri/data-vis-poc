@@ -11,7 +11,7 @@ export const WeatherCharts = ({ data = dailyData }) => {
     for (const key in data[0]) {
       let newArray = {
         name: key,
-        [key]: data.map((d: any) => {
+        data: data.map((d: any) => {
           if (key === 'dt') return
           return {
             dt: d.dt,
@@ -19,12 +19,14 @@ export const WeatherCharts = ({ data = dailyData }) => {
           }
         }),
       }
-      if (!newArray[key].includes(undefined)) modifiedData.push(newArray)
+      if (!newArray.data.includes(undefined)) modifiedData.push(newArray)
     }
     return modifiedData
   }
 
   const dataArrays = makeArrays(data)
+
+  console.log('makedata', dataArrays)
 
   return show ? (
     <div
@@ -59,16 +61,21 @@ export const WeatherCharts = ({ data = dailyData }) => {
           X
         </button>
       </div>
-      {dataArrays.map((arr) => {
+      {dataArrays.map((arr, i) => {
         return (
           <>
-            <div style={{ width: '100%', height: '250px' }} key={arr.name}>
+            <div style={{ width: '100%', height: '250px' }} key={arr.name + i}>
               <ParentSizeModern debounceTime={10}>
                 {({ width, height }) => {
                   return (
                     width > 0 &&
                     height > 0 && (
-                      <TempChart data={arr} width={width} height={height} />
+                      <TempChart
+                        data={arr}
+                        width={width}
+                        height={height}
+                        events
+                      />
                     )
                   )
                 }}

@@ -12,6 +12,7 @@ const Home: NextPage = () => {
       <hr style={{ width: '100%' }} />
 
       <WeatherCharts />
+
       {/* <section style={{ height: 500, width: '100%' }}>
         <ParentSizeModern debounceTime={10}>
           {({ width, height }) => (
@@ -19,12 +20,7 @@ const Home: NextPage = () => {
           )}
         </ParentSizeModern>
       </section> */}
-      {/* <br />
-      <section style={{ height: 500, width: '100%' }}>
-        <ParentSizeModern debounceTime={10}>
-          {({ width, height }) => <TempChart width={width} height={height} />}
-        </ParentSizeModern>
-      </section> */}
+
       {/* <br />
       <section style={{ height: 500, width: '100%' }}>
         <ParentSizeModern debounceTime={10}>

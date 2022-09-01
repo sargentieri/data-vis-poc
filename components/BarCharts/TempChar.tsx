@@ -3,15 +3,12 @@ import * as R from 'react'
 import { Group } from '@visx/group'
 import { scaleBand, scaleLinear } from '@visx/scale'
 import { Bar } from '@visx/shape'
-import { Text } from '@visx/text'
 // grid and axis defs
 import { GridRows } from '@visx/grid'
-import { AxisBottom, AxisLeft } from '@visx/axis'
 // tooltip
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip'
 import { localPoint } from '@visx/event'
 // utils
-import { formatDay } from '../../utils/formatDate'
 import { mapSymbol, mapTitle } from '../../utils/mapper'
 import { Axes } from '../Axis/Axis'
 
@@ -24,17 +21,9 @@ import { Axes } from '../Axis/Axis'
  */
 
 /**
- * Seperate Axises into own File
- * Seperate Grid lines into Own File
- * Make Rects their own file
- * embellish styles
- * make tooltip more generic and in own file
+ * when I console.log(data), will re console.log on scroll
  */
 
-/**
- * when I console.log(data), will re console.log on scroll
- *
- */
 // colors
 const blue = '#7BBCE0'
 export const background = '#FFFFFF'
@@ -91,7 +80,7 @@ export const TempChart = ({
       scaleBand<string>({
         range: [0, innerWidth],
         round: true,
-        domain: data[data.name].map(getX),
+        domain: data?.data?.map(getX),
         padding: 0.65,
       }),
     [innerWidth]
@@ -101,11 +90,13 @@ export const TempChart = ({
     () =>
       scaleLinear<number>({
         range: [innerHeight, 0],
-        domain: [0, Math.max(...data[data.name].map(getY))],
+        domain: [0, Math.max(...data.data.map(getY))],
         round: true,
       }),
     [innerHeight]
   )
+
+  console.log('data', data)
 
   return (
     <div>
@@ -122,8 +113,8 @@ export const TempChart = ({
             fillOpacity={0.1}
             fill='red'
           />
-          
-          {data[data.name].map((d: any, i: any) => {
+
+          {data.data.map((d: any, i: any) => {
             const temp = getY(d)
             const date = getX(d)
             const barWidth = xScale.bandwidth()
@@ -206,7 +197,7 @@ export const TempChart = ({
           <div>
             {data.name === 'avg' ? (
               <small>
-                {Math.round(tooltipData[data.name]).toFixed(2)}{' '}
+                {Math.round(tooltipData.data).toFixed(2)}{' '}
                 {
                   mapSymbol[
                     data?.name as 'avg' | 'rainfall' | 'windSpeed' | 'humidity'
@@ -215,7 +206,7 @@ export const TempChart = ({
               </small>
             ) : (
               <small>
-                {tooltipData[data.name]}{' '}
+                {tooltipData.data}{' '}
                 {
                   mapSymbol[
                     data?.name as 'avg' | 'rainfall' | 'windSpeed' | 'humidity'

@@ -47,9 +47,7 @@ export const Axes = ({
     return formattedDates
   }
 
-  const lowerAxisLabels = monthDisplay(data[data.name])
-
-  console.log('data', data)
+  const lowerAxisLabels = monthDisplay(data.data)
 
   return (
     <>
@@ -84,10 +82,10 @@ export const Axes = ({
         left={margin.left - 5}
       >
         {lowerAxisLabels?.map((m, i) => {
-          const monthsArr = data[data.name]
+          const monthsArr = data.data
           const month = monthsArr[i]
 
-          console.log('month', month)
+          // console.log('month', month)
           return (
             <Text
               key={`${m}-${i}`}
