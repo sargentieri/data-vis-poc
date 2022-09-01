@@ -8,7 +8,7 @@ export const WeatherCharts = ({ data = dailyData }) => {
 
   const makeArrays = (data: any) => {
     let modifiedData = []
-    for (const key in data[1]) {
+    for (const key in data[0]) {
       let newArray = {
         name: key,
         [key]: data.map((d: any) => {
@@ -61,18 +61,21 @@ export const WeatherCharts = ({ data = dailyData }) => {
       </div>
       {dataArrays.map((arr) => {
         return (
-          <div style={{ width: '100%', height: '250px' }} key={arr.name}>
-            <ParentSizeModern debounceTime={10}>
-              {({ width, height }) => {
-                return (
-                  width > 0 &&
-                  height > 0 && (
-                    <TempChart data={arr} width={width} height={height} />
+          <>
+            <div style={{ width: '100%', height: '250px' }} key={arr.name}>
+              <ParentSizeModern debounceTime={10}>
+                {({ width, height }) => {
+                  return (
+                    width > 0 &&
+                    height > 0 && (
+                      <TempChart data={arr} width={width} height={height} />
+                    )
                   )
-                )
-              }}
-            </ParentSizeModern>
-          </div>
+                }}
+              </ParentSizeModern>
+            </div>
+            <div style={{ width: '100%', height: '.5rem' }} />
+          </>
         )
       })}
     </div>

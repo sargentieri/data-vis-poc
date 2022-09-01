@@ -24,8 +24,8 @@ const Home: NextPage = () => {
         <ParentSizeModern debounceTime={10}>
           {({ width, height }) => <TempChart width={width} height={height} />}
         </ParentSizeModern>
-      </section>
-      <br /> 
+      </section> */}
+      {/* <br />
       <section style={{ height: 500, width: '100%' }}>
         <ParentSizeModern debounceTime={10}>
           {({ width, height }) => (
