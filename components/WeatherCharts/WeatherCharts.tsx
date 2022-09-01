@@ -9,11 +9,9 @@ export const WeatherCharts = ({ data = dailyData }) => {
 
   const keys: string[] = Object.keys(data[0])
 
-  const dataGrouped = () => {
+  const dataGrouped = React.useMemo(() => {
     let groupedData: any[] = []
     keys.map((key) => {
-      if ((key as string) !== 'dt') return
-      
       let arr = Array.from(
         group(data, (d) => d.dt),
         ([ky, val]) => ({
@@ -28,7 +26,7 @@ export const WeatherCharts = ({ data = dailyData }) => {
       if (key !== 'dt') groupedData.push(newDataObj)
     })
     return groupedData
-  }
+  }, [data, keys])
 
   return show ? (
     <div
@@ -63,10 +61,10 @@ export const WeatherCharts = ({ data = dailyData }) => {
           X
         </button>
       </div>
-      {dataGrouped().map((arr, i) => {
+      {dataGrouped.map((arr) => {
         return (
-          <>
-            <div style={{ width: '100%', height: '250px' }} key={arr.name + i}>
+          <React.Fragment key={arr.name}>
+            <div style={{ width: '100%', height: '250px' }}>
               <ParentSizeModern debounceTime={10}>
                 {({ width, height }) => {
                   return (
@@ -84,7 +82,7 @@ export const WeatherCharts = ({ data = dailyData }) => {
               </ParentSizeModern>
             </div>
             <div style={{ width: '100%', height: '.5rem' }} />
-          </>
+          </React.Fragment>
         )
       })}
     </div>

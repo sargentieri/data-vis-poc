@@ -4,7 +4,7 @@ import { Group } from '@visx/group'
 import { Text } from '@visx/text'
 // grid and axis defs
 import { AxisBottom, AxisLeft, SharedAxisProps, AxisScale } from '@visx/axis'
-import { formatDay } from '../../utils/formatDate'
+import { formatDay, formatMonth } from '../../utils/formatDate'
 
 type MarginType = {
   top: number
@@ -35,8 +35,7 @@ export const Axes = ({
 }: AxesComponentProps) => {
   const monthDisplay = (data: any) => {
     let formattedDates: string[] = []
-    let months = ['Aug', 'Sep', 'Sep', 'Sep', 'Sep', 'Oct', 'Oct', 'Oct'] // for testing purposes only
-    // let months: string[] = data.map((d: any) => formatMonth(d.dt))
+    let months: string[] = data.map((d: any) => formatMonth(d.dt))
 
     months.map((month: string, i: number) => {
       month === months[i - 1]
@@ -85,7 +84,6 @@ export const Axes = ({
           const monthsArr = data.data
           const month = monthsArr[i]
 
-          // console.log('month', month)
           return (
             <Text
               key={`${m}-${i}`}
